@@ -6,7 +6,7 @@ use Symfony\Component\HttpClient\HttpClient;
 
 echo PHP_EOL;
 echo "----------".PHP_EOL."Welcome! Please enter the time zone for which you want to know the current time. For example: Cuba".PHP_EOL."Otherwise, if you prefer to check the principal time zones, choose the options you prefer!".PHP_EOL."----------".PHP_EOL.PHP_EOL;
-echo "----------".PHP_EOL."OPTIONS".PHP_EOL."----------".PHP_EOL."Enter the timezone by yourself or select one option".PHP_EOL."A) Amsterdam".PHP_EOL."B) Spain".PHP_EOL."C) Japan".PHP_EOL."D) Sydney".PHP_EOL;
+echo "----------".PHP_EOL."OPTIONS".PHP_EOL."----------".PHP_EOL."Enter the timezone by yourself or select one option".PHP_EOL."A) Amsterdam".PHP_EOL."B) Madrid".PHP_EOL."C) Tokyo".PHP_EOL."D) Sydney".PHP_EOL;
 
 fscanf(STDIN, "%s", $timezone);
 $timezone = strtoupper($timezone);
@@ -29,7 +29,7 @@ switch ($timezone) {
         echo "You selected: ".$timezone.PHP_EOL;
         break;
     case "C":
-        $url = "https://timeapi.io/api/Time/current/zone?timeZone=japan";
+        $url = "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo";
         $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
         parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
         $timezone = $ExtreureZonaHoraria['timeZone'];
@@ -69,7 +69,8 @@ $response = $client->request(
 
 if($response->getStatusCode() == 200){
     $data = json_decode($response->getContent());
-    echo "Date ". $data->date.PHP_EOL;
+    $date = date('d-m-Y', strtotime($data->date));
+    echo "Date ". $date.PHP_EOL;
     echo "Time ". $data->time.PHP_EOL;
     }else{
     echo 'Something goes wrong'.PHP_EOL;
