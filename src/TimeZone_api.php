@@ -11,42 +11,39 @@ echo "----------".PHP_EOL."OPTIONS".PHP_EOL."----------".PHP_EOL."Enter the time
 fscanf(STDIN, "%s", $timezone);
 $timezone = strtoupper($timezone);
 
+function AnalitzaryExtreureZH($url) {
+    $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
+    parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
+    $timezone = $ExtreureZonaHoraria['timeZone'];
+    $timezone = ucfirst($timezone);
+
+    return $timezone;
+}
+
 switch ($timezone) {
     case "A":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam";
-        $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
-        parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
-        $timezone = $ExtreureZonaHoraria['timeZone'];
-        $timezone = ucfirst($timezone);
+        $timezone = AnalitzaryExtreureZH($url);
         echo "You selected: ".$timezone.PHP_EOL;
         break;
     case "B":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Madrid";
-        $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
-        parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
-        $timezone = $ExtreureZonaHoraria['timeZone'];
-        $timezone = ucfirst($timezone);
-        echo "You selected: ".$timezone.PHP_EOL;
+        $timezone = AnalitzaryExtreureZH($url);
         break;
     case "C":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo";
-        $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
-        parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
-        $timezone = $ExtreureZonaHoraria['timeZone'];
-        $timezone = ucfirst($timezone);
+        $timezone = AnalitzaryExtreureZH($url);
         echo "You selected: ".$timezone.PHP_EOL;
         break;
     case "D":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Australia/Sydney";
-        $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
-        parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
-        $timezone = $ExtreureZonaHoraria['timeZone'];
-        $timezone = ucfirst($timezone);
+        $timezone = AnalitzaryExtreureZH($url);
         echo "You selected: ".$timezone.PHP_EOL;
-        break;;
+        break;
     default:
         try {
             $url = "https://timeapi.io/api/Time/current/zone?timeZone=". $timezone;
+            $timezone = AnalitzaryExtreureZH($url);
             $timezone = ucfirst(strtolower($timezone));
             echo "You selected: ".$timezone.PHP_EOL;
         } catch (Exception $e) {
