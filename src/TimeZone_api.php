@@ -29,6 +29,7 @@ switch ($timezone) {
     case "B":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Madrid";
         $timezone = AnalitzaryExtreureZH($url);
+        echo "You selected: ".$timezone.PHP_EOL;
         break;
     case "C":
         $url = "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo";
