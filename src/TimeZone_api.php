@@ -1,79 +1,69 @@
 <?php
-
 require_once __DIR__.'/../vendor/autoload.php';
 
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Application;
 
-echo PHP_EOL;
-echo "----------".PHP_EOL."Welcome! Please enter the time zone for which you want to know the current time. For example: Cuba".PHP_EOL."Otherwise, if you prefer to check the principal time zones, choose the options you prefer!".PHP_EOL."----------".PHP_EOL.PHP_EOL;
-echo "----------".PHP_EOL."OPTIONS".PHP_EOL."----------".PHP_EOL."Enter the timezone by yourself or select one option".PHP_EOL."A) Amsterdam".PHP_EOL."B) Madrid".PHP_EOL."C) Tokyo".PHP_EOL."D) Sydney".PHP_EOL;
+class TimeZoneCommand extends Command
+{
+    protected static $defaultName = 'time-zone';
 
-fscanf(STDIN, "%s", $timezone);
-$timezone = strtoupper($timezone);
+    protected function configure()
+    {
+        $this->setDescription('Provides the time for a given time zone');
+    }
 
-function AnalitzaryExtreureZH($url) {
-    $AnalitzarZonaHoraria = parse_url($url, PHP_URL_QUERY);
-    parse_str($AnalitzarZonaHoraria, $ExtreureZonaHoraria);
-    $timezone = $ExtreureZonaHoraria['timeZone'];
-    $timezone = ucfirst($timezone);
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $helper = $this->getHelper('question');
+        $question = new ChoiceQuestion(
+            "Welcome! Please enter the time zone for which you want to know the current time. For example: Cuba" . PHP_EOL . 
+            "Otherwise, if you prefer to check the principal time zones, choose the options you prefer!".PHP_EOL,
+            ['A' => 'Amsterdam', 'B' => 'Madrid', 'C' => 'Tokyo', 'D' => 'Sydney'],
+            'A'
+        );
+        $question->setErrorMessage('Option %s is invalid.');
+        $timezone = $helper->ask($input, $output, $question);
 
-    return $timezone;
-}
-
-switch ($timezone) {
-    case "A":
-        $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam";
-        $timezone = AnalitzaryExtreureZH($url);
-        echo "You selected: ".$timezone.PHP_EOL;
-        break;
-    case "B":
-        $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Madrid";
-        $timezone = AnalitzaryExtreureZH($url);
-        echo "You selected: ".$timezone.PHP_EOL;
-        break;
-    case "C":
-        $url = "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo";
-        $timezone = AnalitzaryExtreureZH($url);
-        echo "You selected: ".$timezone.PHP_EOL;
-        break;
-    case "D":
-        $url = "https://timeapi.io/api/Time/current/zone?timeZone=Australia/Sydney";
-        $timezone = AnalitzaryExtreureZH($url);
-        echo "You selected: ".$timezone.PHP_EOL;
-        break;
-    default:
-        try {
-            $url = "https://timeapi.io/api/Time/current/zone?timeZone=". $timezone;
-            $timezone = AnalitzaryExtreureZH($url);
-            $timezone = ucfirst(strtolower($timezone));
-            echo "You selected: ".$timezone.PHP_EOL;
-        } catch (Exception $e) {
-            echo "Try again, something is wrong".PHP_EOL;
-            echo $e;
+        switch ($timezone) {
+            case "A":
+                $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam";
+                break;
+            case "B":
+                $url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Madrid";
+                break;
+            case "C":
+                $url = "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo";
+                break;
+            case "D":
+                $url = "https://timeapi.io/api/Time/current/zone?timeZone=Australia/Sydney";
+                break;
+            default:
+                $url = "https://timeapi.io/api/Time/current/zone?timeZone=". $timezone;
         }
-}
-echo "Loading";
-for ($i = 0; $i < 3; $i++) {
-    echo ".";
-    sleep(1);
-}
-echo PHP_EOL;
 
-$client = HttpClient::create();
-$response = $client->request(
-    'GET',
-    $url
-);
+        $client = HttpClient::create();
+        $response = $client->request('GET', $url);
 
-if($response->getStatusCode() == 200){
-    $data = json_decode($response->getContent());
-    $date = date('d-m-Y', strtotime($data->date));
-    echo "Date ". $date.PHP_EOL;
-    echo "Time ". $data->time.PHP_EOL;
-    }else{
-    echo 'Something goes wrong'.PHP_EOL;
-    echo "----> TIP! You can search in https://en.wikipedia.org/wiki/List_of_tz_database_time_zones be more specific which country you want to check its timezone".PHP_EOL;
+        if ($response->getStatusCode() == 200) {
+            $data = json_decode($response->getContent());
+            $date = date('d-m-Y', strtotime($data->date));
+            $output->writeln("Date: ". $date);
+            $output->writeln("Time: ". $data->time);
+        } else {
+            $output->writeln('Something went wrong');
+            $output->writeln("--> TIP! You can search in https://en.wikipedia.org/wiki/List_of_tz_database_time_zones to be more specific which country you want to check its timezone");
+        }
+
+        $output->writeln('Thanks for using this command!');
+        return Command::SUCCESS;
+    }
 }
 
-echo ' Thanks for using this code! '.PHP_EOL;
-
+$application = new Application();
+$application->add(new TimeZoneCommand());
+$application->run();
